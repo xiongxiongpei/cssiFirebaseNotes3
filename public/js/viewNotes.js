@@ -1,4 +1,5 @@
 let googleUserId;
+let alphabetical = [];
 
 window.onload = (event) => {
   // Use this to retain user state between html pages.
@@ -25,10 +26,17 @@ const getNotes = (userId) => {
 const renderDataAsHtml = (data) => {
   let cards = ``;
   for(const noteId in data) {
-    const note = data[noteId];
+    let note = data[noteId];
     // For each note create an HTML card
-    cards += createCard(note, noteId)
+    // cards += createCard(note, noteId)
+    note.id = noteId;
+    alphabetical.push(note);
   };
+     alphabetical.sort( (a, b) => (a.text > b.text) ? 1 : -1);
+
+    for (const noteId in alphabetical) {
+        cards += createCard(alphabetical[noteId], alphabetical[noteId].id);
+    }
   // Inject our string of HTML into our viewNotes.html page
   document.querySelector('#app').innerHTML = cards;
 };
@@ -68,7 +76,7 @@ const createCard = (note, noteId) => {
 function editNote(noteId) {
     const editNoteModal = document.querySelector('#editNoteModal');
 
-    const notesRef =  firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+    const notesRef =  firebase.database().ref(`users/${googleUserId}/${noteId}`);
     notesRef.on('value', (snapshot) => {
         const note = snapshot.val();
         document.querySelector('#editTitleInput').value = note.title;
@@ -80,9 +88,11 @@ function editNote(noteId) {
 }
 
 function deleteNote(noteId) {
-    window.confirm("Are you sure you want to delete this note?");
+    // window.confirm("Are you sure you want to delete this note?");
     if (confirm("Are you sure you want to delete this note?")) {
         firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+    } else {
+        alert("ok, that note will stay");
     }
     
     
@@ -93,10 +103,10 @@ function saveEditedNote(){
     const noteTitle = document.querySelector('#editTitleInput').value;
     const noteText = document.querySelector('#editTextInput').value;
     const editedNote = {
-        title: title,
-        text, // if they share the same name, you only need to write it once
+        title: noteTitle,
+        text: noteText,
     }
-    const noteId = document.querySelector('#noteId').value = noteId;
+    const noteId = document.querySelector('#noteId').value //= noteId;
     firebase.database().ref(`users/${googleUserId}/${noteId}`).update(editedNote);
     closeEditModal();
 }
