@@ -1,4 +1,5 @@
 let googleUserId;
+
 window.onload = (event) => {
   // Use this to retain user state between html pages.
   firebase.auth().onAuthStateChanged(function(user) {
@@ -32,7 +33,8 @@ const renderDataAsHtml = (data) => {
   document.querySelector('#app').innerHTML = cards;
 };
 
-const createCard = (note) => {
+const createCard = (note, noteId) => {
+    
    return `
      <div class="column is-one-quarter">
        <div class="card">
@@ -78,7 +80,12 @@ function editNote(noteId) {
 }
 
 function deleteNote(noteId) {
-    firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+    window.confirm("Are you sure you want to delete this note?");
+    if (confirm("Are you sure you want to delete this note?")) {
+        firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+    }
+    
+    
     // console.log('delete', noteId);
 }
 
